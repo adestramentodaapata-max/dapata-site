@@ -61,7 +61,12 @@ def link(slug):
     return url + (f"#{ancora}" if ancora else "")
 
 
+MOSTRAR_PENDENCIAS = False  # True para ver os itens "a confirmar" ao revisar
+
+
 def pend(txt=""):
+    if not MOSTRAR_PENDENCIAS:
+        return ""
     return f'<span class="pend">{(txt + " a confirmar") if txt else "a confirmar"}</span>'
 
 
@@ -108,6 +113,13 @@ def tem_foto(chave):
 
 # ---------------------------------------------------------------- ícones
 ICO = {
+    "externo": '<path d="M14 4h6v6M20 4l-9 9"/><path d="M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/>',
+    "cadeado": '<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>',
+    "calendario": '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>',
+    "estrela": '<circle cx="12" cy="9" r="6"/><path d="M9 14.5L7.5 22l4.5-2.5 4.5 2.5-1.5-7.5"/>',
+    "pata": '<circle cx="7" cy="9" r="2"/><circle cx="12" cy="6" r="2"/><circle cx="17" cy="9" r="2"/><path d="M12 12c-3 0-6 3-6 6 0 2 2 3 6 3s6-1 6-3c0-3-3-6-6-6z"/>',
+    "sacola": '<path d="M5 8h14l-1 13H6z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/>',
+    "seta": '<circle cx="12" cy="12" r="10"/><path d="M8 12h8M13 8l4 4-4 4"/>',
     "banho": '<path d="M4 12h16v3a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5z"/><path d="M6 12V6a2 2 0 0 1 4 0"/><path d="M8 20l-1 2M16 20l1 2"/>',
     "casa": '<path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-5h4v5"/>',
     "medalha": '<circle cx="12" cy="8" r="5"/><path d="M9 12l-2 9 5-3 5 3-2-9"/>',
@@ -153,7 +165,7 @@ def foto_pend(chave, rotulo):
     arq = FOTOS[chave][0] if chave in FOTOS else ""
     return (f'<div class="foto-pend" data-arquivo="img/{arq}"><div>'
             f'<svg viewBox="0 0 389.94 347.77" aria-hidden="true"><use href="img/marca.svg#simbolo"/></svg>'
-            f'<p>{pend(rotulo)}</p></div></div>')
+            f'{("<p>" + pend(rotulo) + "</p>") if MOSTRAR_PENDENCIAS else ""}</div></div>')
 
 
 def foto(chave, rotulo, cls="foto", pos=None, lazy=True):
@@ -224,7 +236,7 @@ def jsonld(slug, titulo):
 # ---------------------------------------------------------------- molde
 NAV = [("banho-e-tosa", "Banho e tosa"), ("creche-e-hotel", "Creche e hotel"),
        ("adestramento", "Adestramento"), ("taxi-dog", "Taxi Dog"),
-       ("quem-somos", "Quem somos"), ("unidades", "Unidades"), ("unidades#contato", "Agendamento")]
+       ("quem-somos", "Quem somos"), ("unidades", "Unidades"), ("unidades#contato", "Contato")]
 SISTEMA = "https://sistema.dapata.com.br"
 
 ZAP_SVG = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2c-1.5 0-3-.4-4.3-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.2-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.5 4c1.7.7 2.3.8 3.2.6.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.1-1.2l-.4-.2z"/></svg>'
@@ -237,6 +249,7 @@ def pagina(slug, titulo, titulo_seo, descricao, corpo, imagem="hero.jpg", preloa
               '<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,700;9..144,900&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">')
     atual = ' aria-current="page"'
     nav = "".join(f'<li><a href="{link(s)}"{atual if s == slug else ""}>{t}</a></li>' for s, t in NAV)
+    servicos_menu = "".join(f'<li><a href="{link(s)}"{atual if s == slug else ""}>{t}</a></li>' for s, t in NAV[:4])
     zap_txt = "WhatsApp"
     robots = '<meta name="robots" content="noindex">' if slug == "404" else ""
     pre = (f'<link rel="preload" as="image" href="img/{Path(preload).with_suffix(".webp").name}" type="image/webp" fetchpriority="high">'
@@ -267,9 +280,20 @@ def pagina(slug, titulo, titulo_seo, descricao, corpo, imagem="hero.jpg", preloa
 <header>
   <div class="wrap topo">
     <a class="marca" href="{link('index')}" aria-label="{NOME}, página inicial"><svg viewBox="0 0 837.21 214.66" aria-hidden="true"><use href="img/marca.svg#logo"/></svg></a>
-    <nav aria-label="Principal"><ul>{nav}</ul></nav>
-    <a class="btn btn-pri" href="{SISTEMA}">Área da equipe</a>
-    <details class="menu"><summary aria-label="Abrir menu"><span class="barras" aria-hidden="true"></span>Menu</summary><nav class="gaveta" aria-label="Menu do celular"><ul>{nav}</ul><div class="acoes"><a class="btn btn-pri" href="{link('unidades#contato')}">Agendar</a><a class="btn btn-sec" href="{SISTEMA}">Área da equipe</a></div></nav></details>
+    <nav class="principal" aria-label="Principal"><ul>
+      <li><a href="{link('index')}"{atual if slug == 'index' else ""}>Início</a></li>
+      <li class="sub"><button type="button" aria-expanded="false" aria-controls="sub-servicos"{' data-atual' if slug in ('banho-e-tosa','creche-e-hotel','adestramento','taxi-dog') else ''}>Serviços<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2"/></svg></button>
+        <ul id="sub-servicos">{servicos_menu}</ul></li>
+      <li><a href="{link('unidades')}"{atual if slug == 'unidades' else ""}>Unidades</a></li>
+      <li><a href="{link('quem-somos')}"{atual if slug == 'quem-somos' else ""}>Quem somos</a></li>
+      <li><a href="{link('unidades#contato')}">Contato</a></li>
+    </ul></nav>
+    <div class="topo-acoes">
+      <a class="btn btn-contorno" href="{ZOOP}">{svg_ico("externo")}Solicitar na Zoop</a>
+      <a class="btn btn-pri" href="{zap_href()}">{svg_ico("zap")}Fale com a equipe</a>
+      <a class="equipe-ico" href="{SISTEMA}" aria-label="Área da equipe" title="Área da equipe">{svg_ico("cadeado")}</a>
+    </div>
+    <details class="menu"><summary aria-label="Abrir menu"><span class="barras" aria-hidden="true"></span>Menu</summary><nav class="gaveta" aria-label="Menu do celular"><ul>{nav}</ul><div class="acoes"><a class="btn btn-pri" href="{zap_href()}">{svg_ico("zap")}Fale com a equipe</a><a class="btn btn-contorno" href="{ZOOP}">{svg_ico("externo")}Solicitar na Zoop</a></div><a class="gaveta-equipe" href="{SISTEMA}">{svg_ico("cadeado")}Área da equipe</a></nav></details>
   </div>
 </header>
 <main id="conteudo">
@@ -287,11 +311,12 @@ def pagina(slug, titulo, titulo_seo, descricao, corpo, imagem="hero.jpg", preloa
         <li><a href="{link('adestramento')}">Adestramento</a></li><li><a href="{link('taxi-dog')}">Taxi Dog</a></li></ul></div>
       <div><h2 class="rod">DaPata</h2><ul>
         <li><a href="{link('quem-somos')}">Quem somos</a></li><li><a href="{link('unidades')}">Unidades e horários</a></li>
-        <li><a href="{ZOOP}">Agendar no Zoop</a></li></ul></div>
+        <li><a href="{ZOOP}">Solicitar na Zoop</a></li></ul></div>
       <div><h2 class="rod">Contato</h2><ul>
         <li><a href="{zap_href()}">{zap_txt}</a></li>
         <li><a href="mailto:{EMAIL}">{EMAIL}</a></li>
-        <li><a href="{INSTAGRAM}">Instagram @dapata.petcenter</a></li></ul></div>
+        <li><a href="{INSTAGRAM}">Instagram @dapata.petcenter</a></li>
+        <li><a class="equipe-rod" href="{SISTEMA}">{svg_ico("cadeado")}Área da equipe</a></li></ul></div>
     </div>
     <p class="base"><span>{NOME} · Toledo - PR · CNPJ {CNPJ}</span><span>© 2026</span></p>
   </div>
@@ -337,7 +362,7 @@ def chamada(titulo="Vamos encontrar o melhor cuidado para o seu cão?",
     <p class="kicker">Contato</p>
     <h2 id="contato-titulo">{titulo}</h2>
     <p>{texto}</p>
-    <div class="acoes"><a class="btn btn-pri" href="{ZOOP}">Agendar no Zoop</a><a class="btn btn-sec" href="{zap_href()}">Falar com a equipe</a></div>
+    {caminhos()}
     {canais() if com_canais else ""}
     {NOTA_AGENDA}
   </div>
@@ -371,16 +396,16 @@ def capa_unidade(k):
     if k == "creche":  # foto real do pátio da unidade 2, com a placa do DaPata
         return img("g1.jpg", "Pátio da unidade de creche e hotel, com a placa do DaPata", pos="center 18%")
     return (f'<div class="vazia" data-arquivo="img/{FOTOS[chave][0]}"><div><svg viewBox="0 0 389.94 347.77" aria-hidden="true">'
-            f'<use href="img/marca.svg#simbolo"/></svg>{pend("Foto da fachada")}</div></div>')
+            f'<use href="img/marca.svg#simbolo"/></svg></div></div>')
 
 
 def perguntas(itens):
     return '<div class="perguntas">' + "".join(
-        f'<details><summary>{p}</summary><p>{r}</p></details>' for p, r in itens) + "</div>"
+        f'<details><summary>{p}</summary><p>{r}</p></details>' for p, r in itens if r.strip()) + "</div>"
 
 
 def topo(kicker, h1, lead, arte, botoes=None):
-    botoes = botoes or f'<a class="btn btn-pri" href="{ZOOP}">Agendar no Zoop</a><a class="btn btn-sec" href="{zap_href()}">Falar com a equipe</a>'
+    botoes = botoes or f'<a class="btn btn-pri" href="{zap_href()}">{svg_ico("zap")}Fale com a equipe</a><a class="btn btn-contorno" href="{ZOOP}">{svg_ico("externo")}Solicitar na Zoop</a>'
     return f'''<section class="pagina-topo">
   <div class="wrap">
     <div><p class="kicker">{kicker}</p><h1>{h1}</h1><p class="lead">{lead}</p><div class="acoes">{botoes}</div></div>
@@ -405,137 +430,129 @@ BOM_SABER = '''<ul class="lista">
 
 
 # ---------------------------------------------------------------- páginas
+def card_servico(midia, icone, titulo, texto, href):
+    return f'''<article class="srv">
+  <a class="srv-link" href="{href}">
+    <div class="srv-midia">{midia}</div>
+    <span class="srv-ico">{svg_ico(icone)}</span>
+    <div class="srv-corpo"><h3>{titulo}</h3><p>{texto}</p><span class="srv-mais">{svg_ico("seta")}Saiba mais</span></div>
+  </a>
+</article>'''
+
+
+def tile(icone, cor):
+    return f'<div class="srv-tile srv-tile-{cor}" aria-hidden="true">{svg_ico(icone)}</div>'
+
+
+def caminhos():
+    zap_card = (f'''<a class="caminho caminho-zap" href="{zap_href()}">
+      <span class="caminho-ico">{svg_ico("zap")}</span>
+      <span class="caminho-tit">Fale com a equipe</span>
+      <span class="caminho-txt">Tire dúvidas, conte sobre o seu cão e receba orientação. WhatsApp geral das duas unidades.</span>
+      <span class="caminho-cta">Abrir WhatsApp</span></a>''')
+    return f'''<div class="caminhos">
+    {zap_card}
+    <a class="caminho caminho-zoop" href="{ZOOP}">
+      <span class="caminho-ico">{svg_ico("calendario")}</span>
+      <span class="caminho-tit">Solicite pela Zoop</span>
+      <span class="caminho-txt">Peça banho, creche, hotel ou adestramento pela plataforma. A equipe confirma data e horário com você.</span>
+      <span class="caminho-cta">Abrir a Zoop</span></a>
+  </div>'''
+
+
 def p_index():
-    corpo = f'''<section class="hero" aria-labelledby="h1">
-  <div class="wrap">
-    <div>
+    taxi_midia = img(FOTOS["taxi"][0], FOTOS["taxi"][1]) if tem_foto("taxi") else tile("carro", "marrom")
+    corpo = f'''<section class="hero5" aria-labelledby="h1">
+  <div class="hero5-foto">{img("hero.jpg", "Golden retriever sorrindo no pátio da creche do DaPata", lazy=False, prioridade=True, pos="center 28%")}</div>
+  <div class="wrap hero5-wrap">
+    <div class="hero5-texto">
       <p class="kicker">Pet center em Toledo - PR</p>
-      <h1 id="h1">Seu bem mais precioso em mãos que entendem de cachorro.</h1>
-      <p class="lead">Banho e tosa, creche, hotel, adestramento e Taxi Dog com atendimento pensado para as características e necessidades de cada cão e de cada tutor.</p>
-      <div class="acoes"><a class="btn btn-pri" href="#servicos">Conhecer os serviços</a><a class="btn btn-sec" href="#contato">Como agendar</a></div>
-      <p class="local"><span>Adestramento desde 2016</span><span>Duas unidades em Toledo</span></p>
-    </div>
-    <div class="hero-foto">
-      {img("hero.jpg", "Golden retriever sorrindo no pátio da creche do DaPata", lazy=False, prioridade=True)}
-      <svg class="simb" viewBox="0 0 389.94 347.77" aria-hidden="true"><use href="img/marca.svg#simbolo"/></svg>
-      <p class="selo">{svg_ico("escudo")}Acompanhamento humano na hospedagem, inclusive à noite</p>
-    </div>
-  </div>
-</section>
-
-<p class="faixa">Ele volta cheiroso, feliz e com aquele cansaço bom de quem foi bem tratado.</p>
-
-<section id="servicos" aria-labelledby="servicos-titulo">
-  <div class="wrap">
-    <div class="cabeca dupla">
-      <div><p class="kicker">Serviços</p><h2 id="servicos-titulo">Para ele voltar para casa melhor do que chegou</h2></div>
-      <p>Cada serviço considera o jeito do seu cão: o que deixa ele tranquilo, o que precisa de mais cuidado e o que você espera do atendimento.</p>
-    </div>
-    <div class="servicos">
-      <article class="servico surge">
-        <div class="servico-foto">{img("banho.jpg", "Poodle branca recém-tosada, com laço rosa", pos="center 42%")}<span class="num">01</span></div>
-        <div>
-          <p class="kicker">Unidade 1</p>
-          <h3>Banho e tosa</h3>
-          <p>Mais do que estética: manejo respeitoso e atenção ao comportamento de cada cão, inclusive daqueles que sentem medo ou têm dificuldade durante o banho.</p>
-          <ul class="itens"><li>Tosa na máquina e na tesoura</li><li>Equipe qualificada e produtos de qualidade</li><li>Venda de rações e produtos para pets</li></ul>
-          <a class="mais" href="{link('banho-e-tosa')}">Conhecer o banho e tosa</a>
-        </div>
-      </article>
-
-      <div class="servico-par">
-        <article class="servico surge">
-          <div class="servico-foto">{img("creche.jpg", "Dois goldens no pátio ensolarado da creche", pos="center 30%")}<span class="num">02</span></div>
-          <div>
-            <p class="kicker">Unidade 2</p>
-            <h3>Creche canina</h3>
-            <p>Um dia de atividades com interações seguras e supervisionadas, em grupo ou individuais, conforme o perfil do cão.</p>
-            <ul class="itens"><li>Piscina, chafariz e enriquecimento ambiental</li><li>Estímulos físicos e mentais</li></ul>
-            <a class="mais" href="{link('creche-e-hotel#creche')}">Como é o dia na creche</a>
-          </div>
-        </article>
-        <article class="servico surge">
-          <div class="servico-foto">{img("g6.jpg", "Cães no espaço interno do hotel", pos="center 60%")}<span class="num">03</span></div>
-          <div>
-            <p class="kicker">Unidade 2</p>
-            <h3>Hotel para cães</h3>
-            <p>Hospedagem com descanso respeitado e espaços organizados conforme o perfil e a necessidade de tranquilidade de cada cão.</p>
-            <ul class="itens"><li>Acompanhamento humano, inclusive à noite</li><li>Fotos e vídeos no grupo de WhatsApp dos tutores</li></ul>
-            <a class="mais" href="{link('creche-e-hotel#hotel')}">Como funciona a hospedagem</a>
-          </div>
-        </article>
-      </div>
-
-      <article class="servico surge">
-        <div class="servico-foto">{img("adest.jpg", "Cão sentado olhando atento para o treinador", pos="center 32%")}<span class="num">04</span></div>
-        <div>
-          <p class="kicker">Unidade 2</p>
-          <h3>Adestramento</h3>
-          <p>10 anos de experiência em comportamento canino. O trabalho parte das necessidades do cão e do tutor e constrói vínculo, foco, comunicação e convivência.</p>
-          <ul class="itens"><li>Escolinha duas vezes por semana</li><li>Atendimento na sua casa</li><li>Consultoria comportamental com protocolo escrito</li></ul>
-          <a class="mais" href="{link('adestramento')}">Conhecer o adestramento</a>
-        </div>
-      </article>
-
-      <article class="taxi surge">
-        <div class="ico-g">{svg_ico("carro")}</div>
-        <div>
-          <p class="kicker">05 · Taxi Dog</p>
-          <h3>Ele vai e volta com segurança</h3>
-          <p>Transporte em toda Toledo para os serviços do DaPata: banho e tosa, creche, hotel e adestramento.</p>
-          <ul class="chips"><li>Ar-condicionado</li><li>Caixas de transporte apropriadas</li><li>Toda Toledo</li></ul>
-        </div>
-        <a class="mais" href="{link('taxi-dog')}">Como funciona</a>
-      </article>
-    </div>
-  </div>
-</section>
-
-<section class="escuro" id="jeito" aria-labelledby="jeito-titulo">
-  <div class="wrap jeito">
-    <div class="jeito-fotos">
-      {img("g5.jpg", "Dois cães sorrindo lado a lado no pátio da creche", pos="center 45%")}
-      {img("g3.jpg", "Cão de óculos escuros descansando na creche", pos="center 30%")}
-      {img("g4.jpg", "Husky sorrindo no pátio", pos="center 35%")}
-    </div>
-    <div>
-      <p class="kicker">Nosso jeito de cuidar</p>
-      <h2 id="jeito-titulo">Tudo começa por entender o cão</h2>
-      <p>A experiência em comportamento canino orienta cada serviço, do banho ao treino. Cada cão é atendido conforme as características dele e o que o tutor precisa.</p>
-      <ul class="pilares">
-        <li><span class="n">01</span><h3>Leitura de comportamento</h3><p>Antes de começar, a gente observa como ele está: confiante, ansioso, com medo. É isso que define a condução.</p></li>
-        <li><span class="n">02</span><h3>Manuseio respeitoso</h3><p>Manejo adequado, no ritmo de cada cão, inclusive dos que têm medo ou dificuldade.</p></li>
-        <li><span class="n">03</span><h3>Enriquecimento ambiental</h3><p>Piscina, chafariz, frutas congeladas e atividades sensoriais na rotina da creche e do hotel.</p></li>
-        <li><span class="n">04</span><h3>Socialização com segurança</h3><p>Interações supervisionadas e adaptação gradual. Atividades em grupo ou individuais, conforme o perfil.</p></li>
-        <li><span class="n">05</span><h3>Estímulos físicos e mentais</h3><p>Atividades que equilibram gasto de energia e descanso, respeitando o tempo de cada cão.</p></li>
-        <li><span class="n">06</span><h3>Acompanhamento e segurança</h3><p>Acompanhamento humano durante a hospedagem, inclusive no período noturno.</p></li>
+      <h1 id="h1">Seu bem mais precioso em mãos que <em>entendem de cachorro.</em></h1>
+      <p class="lead">Cuidado, estrutura e conhecimento para o bem-estar do seu cão, com atendimento personalizado e foco em comportamento.</p>
+      <div class="acoes"><a class="btn btn-pri btn-g" href="{zap_href()}">{svg_ico("zap")}Fale com a equipe</a><a class="btn btn-sec btn-g" href="#servicos">Conheça nossos serviços</a></div>
+      <ul class="selos">
+        <li>{svg_ico("calendario")}<span>Experiência<br>desde 2016</span></li>
+        <li>{svg_ico("estrela")}<span>10 anos em<br>adestramento</span></li>
+        <li>{svg_ico("pata")}<span>Estrutura<br>completa</span></li>
+        <li>{svg_ico("coracao")}<span>Atendimento<br>personalizado</span></li>
       </ul>
     </div>
   </div>
 </section>
 
-<section aria-labelledby="como-titulo">
+<section id="servicos" class="servicos5" aria-labelledby="servicos-titulo">
   <div class="wrap">
     <div class="cabeca dupla">
-      <div><p class="kicker">Como funciona</p><h2 id="como-titulo">Do primeiro contato à volta para casa</h2></div>
-      <p>Você fala com quem vai cuidar do seu cão e acompanha tudo de perto.</p>
+      <div><p class="kicker">Nossos serviços</p><h2 id="servicos-titulo">Tudo o que o seu cão precisa, em um só lugar.</h2></div>
+      <p>Serviços integrados, com uma equipe que entende de comportamento e uma rotina pensada para o equilíbrio e o bem-estar do seu cão.</p>
     </div>
-    <ol class="passos">
-      <li><h3>Conte sobre o seu cão</h3><p>Pelo WhatsApp ou no balcão: jeito, rotina, saúde e o que você precisa.</p></li>
-      <li><h3>Solicite pelo Zoop</h3><p>Escolha o serviço e o dia no app. Se quiser, peça o Taxi Dog.</p></li>
-      <li><h3>A equipe confirma</h3><p>Data, horário e disponibilidade são confirmados pela equipe com você.</p></li>
-      <li><h3>Cuidado e retorno</h3><p>Ele é atendido no ritmo dele, e você recebe notícias e fotos quando estiver com a gente.</p></li>
-    </ol>
+    <div class="srv-grade">
+      {card_servico(img("banho.jpg", "Poodle branca recém-tosada, com laço rosa", pos="center 40%"), "tesoura", "Banho e Tosa", "Higiene, bem-estar e cuidado com respeito às características de cada cão.", link("banho-e-tosa"))}
+      {card_servico(img("creche.jpg", "Dois goldens no pátio ensolarado da creche", pos="center 30%"), "pata", "Creche e Hotel", "Socialização, rotina, atividades e hospedagem com segurança.", link("creche-e-hotel"))}
+      {card_servico(img("adest.jpg", "Cão sentado olhando atento para o treinador", pos="center 30%"), "estrela", "Adestramento", "Educação, foco e vínculo para uma convivência mais leve e equilibrada.", link("adestramento"))}
+      {card_servico(taxi_midia, "carro", "TáxiDog", "Transporte seguro e confortável para os serviços da DaPata, em toda Toledo.", link("taxi-dog"))}
+      {card_servico(tile("sacola", "laranja"), "sacola", "Produtos Pet", "Rações e produtos selecionados para o dia a dia do seu cão, nas duas unidades.", link("unidades"))}
+    </div>
   </div>
 </section>
 
-<section class="galeria claro" aria-labelledby="galeria-titulo">
+<section class="jeito5" aria-labelledby="jeito-titulo">
+  <div class="wrap jeito5-grade">
+    <div class="jeito5-fotos">
+      <figure class="j-a">{img("g5.jpg", "Dois cães sorrindo lado a lado no pátio da creche", pos="center 45%")}</figure>
+      <figure class="j-b">{img("g6.jpg", "Cães no espaço interno do hotel", pos="center 62%")}</figure>
+      <div class="j-num"><b>2016</b><span>o começo, no adestramento</span></div>
+    </div>
+    <div>
+      <p class="kicker">O jeito DaPata de cuidar</p>
+      <h2 id="jeito-titulo">Cada cão tem um jeito. O cuidado parte dele.</h2>
+      <p class="jeito5-intro">Antes de qualquer serviço vem a leitura do cão: como ele chega, do que tem medo, o que deixa ele tranquilo. É isso que orienta o banho, a rotina da creche e o treino.</p>
+      <ol class="jeito5-lista">
+        <li><h3>Atendimento personalizado</h3><p>As características e necessidades de cada cão e de cada tutor definem o atendimento.</p></li>
+        <li><h3>Conhecimento em comportamento</h3><p>A base do trabalho vem de anos de adestramento e leitura canina.</p></li>
+        <li><h3>Manejo respeitoso</h3><p>No ritmo de cada cão, inclusive dos que têm medo ou dificuldade.</p></li>
+        <li><h3>Adaptação individualizada</h3><p>Gradual, com avaliação e controle das interações.</p></li>
+        <li><h3>Enriquecimento ambiental</h3><p>Piscina, chafariz, frutas congeladas e atividades sensoriais.</p></li>
+        <li><h3>Estrutura preparada</h3><p>Áreas internas e externas e espaços de descanso organizados por perfil.</p></li>
+        <li><h3>Segurança e acompanhamento</h3><p>Interações supervisionadas e acompanhamento humano, inclusive à noite.</p></li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<section class="historia5" aria-labelledby="hist-titulo">
+  <div class="wrap historia5-grade">
+    <div class="historia5-texto">
+      <p class="kicker">Nossa história</p>
+      <h2 id="hist-titulo">Mais do que cuidar. <em>Entender cada cão.</em></h2>
+      <p>O DaPata nasceu do amor pelos animais e da vontade de fazer diferente. A história começou em 2016, com o adestramento, e com ela veio a base que guia tudo até hoje: vínculo, conhecimento e atendimento personalizado.</p>
+      <p>Com o tempo, o trabalho cresceu para banho e tosa, creche, hotel e produtos pet. Hoje são duas unidades em Toledo, com a mesma forma de olhar para cada cão.</p>
+      <ol class="linha">
+        <li><b>2016</b><span>Começo com o adestramento</span></li>
+        <li><b>Depois</b><span>Banho e tosa, creche, hotel e produtos</span></li>
+        <li><b>Hoje</b><span>Duas unidades em Toledo</span></li>
+      </ol>
+      <a class="mais" href="{link('quem-somos')}">Conhecer a nossa história</a>
+    </div>
+    <figure class="historia5-foto">{img(FOTOS["equipe"][0], FOTOS["equipe"][1]) if tem_foto("equipe") else img("g1.jpg", "Pátio da creche do DaPata, com a placa da empresa ao fundo", pos="center 40%")}</figure>
+  </div>
+</section>
+
+<section class="estrutura5" aria-labelledby="estr-titulo">
   <div class="wrap">
     <div class="cabeca dupla">
-      <div><p class="kicker">Um dia na creche</p><h2 id="galeria-titulo">Olha a carinha de quem passou o dia aqui</h2></div>
-      <p>Momentos reais da rotina, registrados pela equipe e enviados aos tutores pelo WhatsApp.</p>
+      <div><p class="kicker">Estrutura e rotina</p><h2 id="estr-titulo">Um dia pensado para o corpo e para a cabeça</h2></div>
+      <p>Momentos reais da creche e do hotel, registrados pela equipe e enviados aos tutores no grupo de WhatsApp.</p>
     </div>
     {mosaico()}
+    <ul class="recursos">
+      <li>{svg_ico("neve")}Piscina e chafariz</li>
+      <li>{svg_ico("folha")}Atividades sensoriais</li>
+      <li>{svg_ico("pata")}Enriquecimento ambiental</li>
+      <li>{svg_ico("lua")}Espaços de descanso</li>
+      <li>{svg_ico("grupo")}Interações supervisionadas</li>
+      <li>{svg_ico("escudo")}Acompanhamento inclusive à noite</li>
+    </ul>
   </div>
 </section>
 
@@ -546,13 +563,13 @@ def p_index():
       <p>Uma rotina com atividade e descanso, organizada conforme o perfil e a segurança de cada cão.</p>
     </div>
     <div class="rotina">
-      <ol class="linha-tempo surge">
+      <ol class="linha-tempo">
         <li><b>Manhã</b><span>Atividades externas, sol e descanso.</span></li>
         <li><b>Tarde</b><span>Relaxamento no espaço interno e brincadeiras na área externa.</span></li>
         <li><b>Noite</b><span>No hotel, descanso respeitado, em espaço organizado conforme o perfil e a necessidade de tranquilidade de cada cão.</span></li>
         <li><b>Sempre</b><span>Acompanhamento humano, inclusive à noite. Fotos e vídeos no grupo de WhatsApp dos tutores.</span></li>
       </ol>
-      <div class="checklist surge">
+      <div class="checklist">
         <h3>Para participar</h3>
         {REQUISITOS}
         <p class="obs">Castração de machos é recomendada, não obrigatória. A adaptação é gradual e acompanhada.</p>
@@ -569,23 +586,19 @@ def p_index():
   </div>
 </section>
 
-<section class="sobre" id="sobre" aria-labelledby="sobre-titulo">
+<section class="contato5" id="contato" aria-labelledby="contato-titulo">
   <div class="wrap">
-    <div class="retrato">{img(FOTOS["equipe"][0], FOTOS["equipe"][1], "foto-retrato") if tem_foto("equipe") else simbolo()}</div>
-    <div>
-      <p class="kicker">Quem somos</p>
-      <h2 id="sobre-titulo">Da pata ao coração</h2>
-      <p>O DaPata nasceu do amor pelos animais e da vontade de fazer diferente. A história começou com o adestramento, em 2016, e cresceu para o pet shop e a hotelaria.</p>
-      <p>Essa base em comportamento canino está em tudo o que a gente faz: no banho, na creche, no hotel e no treino.</p>
-      <p class="citacao">Um lugar onde cada momento fortalece laços infinitos de amor e cuidado.</p>
-      <a class="mais" href="{link('quem-somos')}">Conhecer a nossa história</a>
+    <div class="contato5-cab">
+      <p class="kicker">Contato</p>
+      <h2 id="contato-titulo">Vamos encontrar o melhor cuidado para o seu cão?</h2>
+      <p>Dois caminhos, cada um para uma coisa: conversar com a equipe ou solicitar o serviço.</p>
     </div>
+    {caminhos()}
+    {NOTA_AGENDA}
   </div>
-</section>
-
-{chamada(com_canais=True)}'''
+</section>'''
     return pagina("index", "Início", "Pet shop em Toledo - PR | DaPata Pet Center",
-                  "DaPata Pet Center em Toledo - PR: banho e tosa, creche e hotel para cães, adestramento desde 2016 e Taxi Dog. Duas unidades e atendimento personalizado.",
+                  "DaPata Pet Center em Toledo - PR: banho e tosa, creche e hotel para cães, adestramento desde 2016, TáxiDog e produtos pet. Duas unidades e atendimento personalizado.",
                   corpo, preload="hero.jpg")
 
 
@@ -910,10 +923,9 @@ def p_quem():
   <div class="wrap">
     <div class="cabeca"><p class="kicker">A família da casa</p><h2 id="q3">Quem você vai encontrar por aqui</h2></div>
     {equipe}
-    <div class="grade3" style="margin-top:20px">
+    <div class="grade" style="margin-top:20px">
       <div class="card"><h3>Diamante</h3><p>Vira-lata veterano que mora no DaPata.</p></div>
       <div class="card"><h3>Belchior</h3><p>Border collie da casa, especialista em truques.</p></div>
-      <div class="card"><h3>Nossa equipe</h3><p>{pend("Nomes e funções da equipe")}</p></div>
     </div>
   </div>
 </section>
