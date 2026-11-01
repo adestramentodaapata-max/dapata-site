@@ -1,0 +1,7 @@
+/* Fontes oficiais da marca. Ajustar os nomes dos arquivos quando roca.zip e Author_Complete.zip forem extraídos
+   e depois ligar FONTES_OFICIAIS = True no build.py (isso remove o Google Fonts do site). */
+@font-face{font-family:'Roca';src:url('/fonts/roca-bold.woff2') format('woff2');font-weight:700;font-display:swap}
+@font-face{font-family:'Roca';src:url('/fonts/roca-black.woff2') format('woff2');font-weight:900;font-display:swap}
+@font-face{font-family:'Author';src:url('/fonts/author-regular.woff2') format('woff2');font-weight:400;font-display:swap}
+@font-face{font-family:'Author';src:url('/fonts/author-medium.woff2') format('woff2');font-weight:500;font-display:swap}
+@font-face{font-family:'Author';src:url('/fonts/author-bold.woff2') format('woff2');font-weight:700;font-display:swap}
