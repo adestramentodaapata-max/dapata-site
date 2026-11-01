@@ -26,3 +26,10 @@ Depois de mudar texto ou configuração: `python3 build.py`.
 Depois de no ar: cadastrar o site no Google Search Console e enviar `https://dapata.com.br/sitemap.xml`.
 
 Requisito do build: Python 3 com Pillow (gera os WebP) e `rsvg-convert` (só na primeira vez, para o PNG do logo).
+
+## Portal interno (sistema.dapata.com.br)
+- Página em `interno/index.html`, servida pelo mesmo container, mas só no host `sistema.dapata.com.br`.
+- Protegida por senha única da equipe (`.htpasswd`, só com hash, não com a senha).
+- Para trocar a senha: `printf 'dapata:%s\n' "$(openssl passwd -apr1 'NOVA_SENHA')" > .htpasswd`, depois commit e deploy.
+- Para publicar: no Coolify, adicionar o domínio `sistema.dapata.com.br` (HTTPS) e criar o registro A do subdomínio apontando para o mesmo IP.
+- Os links marcados "a confirmar" em `interno/index.html` precisam dos endereços reais das planilhas e pastas do Drive.

@@ -1,4 +1,6 @@
 FROM nginx:1.27-alpine
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 COPY site/ /usr/share/nginx/html/
+COPY interno/ /usr/share/nginx/interno/
+COPY .htpasswd /etc/nginx/.htpasswd
 EXPOSE 80
