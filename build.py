@@ -224,7 +224,8 @@ def jsonld(slug, titulo):
 # ---------------------------------------------------------------- molde
 NAV = [("banho-e-tosa", "Banho e tosa"), ("creche-e-hotel", "Creche e hotel"),
        ("adestramento", "Adestramento"), ("taxi-dog", "Taxi Dog"),
-       ("quem-somos", "Quem somos"), ("unidades", "Unidades e contato")]
+       ("quem-somos", "Quem somos"), ("unidades", "Unidades"), ("unidades#contato", "Agendamento")]
+SISTEMA = "https://sistema.dapata.com.br"
 
 ZAP_SVG = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2c-1.5 0-3-.4-4.3-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.2-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.5 4c1.7.7 2.3.8 3.2.6.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.1-1.2l-.4-.2z"/></svg>'
 
@@ -267,8 +268,8 @@ def pagina(slug, titulo, titulo_seo, descricao, corpo, imagem="hero.jpg", preloa
   <div class="wrap topo">
     <a class="marca" href="{link('index')}" aria-label="{NOME}, página inicial"><svg viewBox="0 0 837.21 214.66" aria-hidden="true"><use href="img/marca.svg#logo"/></svg></a>
     <nav aria-label="Principal"><ul>{nav}</ul></nav>
-    <a class="btn btn-pri" href="{ZOOP}">Agendar no Zoop</a>
-    <details class="menu"><summary aria-label="Abrir menu"><span class="barras" aria-hidden="true"></span>Menu</summary><nav class="gaveta" aria-label="Menu do celular"><ul>{nav}</ul><div class="acoes"><a class="btn btn-pri" href="{ZOOP}">Agendar no Zoop</a><a class="btn btn-sec" href="{zap_href()}">Falar com a equipe</a></div></nav></details>
+    <a class="btn btn-pri" href="{SISTEMA}">Área da equipe</a>
+    <details class="menu"><summary aria-label="Abrir menu"><span class="barras" aria-hidden="true"></span>Menu</summary><nav class="gaveta" aria-label="Menu do celular"><ul>{nav}</ul><div class="acoes"><a class="btn btn-pri" href="{link('unidades#contato')}">Agendar</a><a class="btn btn-sec" href="{SISTEMA}">Área da equipe</a></div></nav></details>
   </div>
 </header>
 <main id="conteudo">
@@ -411,7 +412,7 @@ def p_index():
       <p class="kicker">Pet center em Toledo - PR</p>
       <h1 id="h1">Seu bem mais precioso em mãos que entendem de cachorro.</h1>
       <p class="lead">Banho e tosa, creche, hotel, adestramento e Taxi Dog com atendimento pensado para as características e necessidades de cada cão e de cada tutor.</p>
-      <div class="acoes"><a class="btn btn-pri" href="{ZOOP}">Agendar no Zoop</a><a class="btn btn-sec" href="#servicos">Conhecer os serviços</a></div>
+      <div class="acoes"><a class="btn btn-pri" href="#servicos">Conhecer os serviços</a><a class="btn btn-sec" href="#contato">Como agendar</a></div>
       <p class="local"><span>Adestramento desde 2016</span><span>Duas unidades em Toledo</span></p>
     </div>
     <div class="hero-foto">

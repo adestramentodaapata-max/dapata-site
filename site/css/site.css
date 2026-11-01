@@ -62,9 +62,9 @@ nav ul{display:flex;gap:4px;list-style:none}
 nav a{display:block;text-decoration:none;font-weight:500;font-size:.95rem;color:var(--grafite);white-space:nowrap;padding:.45em .7em;border-radius:999px;transition:background .2s,color .2s}
 nav a:hover{background:var(--areia-claro)}
 nav a[aria-current]{color:var(--marrom);font-weight:700;background:var(--areia-claro)}
-.topo>.btn{padding:.7em 1.2em;font-size:.92rem}
+.topo>.btn{padding:.7em 1.2em;font-size:.92rem;white-space:nowrap;flex:none}
 .menu{display:none}
-@media (max-width:1060px){
+@media (max-width:1180px){
   .topo nav,.topo>.btn{display:none}
   .menu{display:block}
   .menu summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:.5em;font-weight:700;color:var(--grafite);padding:.55em 1em;border:1.5px solid rgba(41,39,34,.3);border-radius:999px}
